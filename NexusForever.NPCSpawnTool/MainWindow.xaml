@@ -5,28 +5,36 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NexusForever.NPCSpawnTool"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="NPC Spawn Tool v1.0" Height="409" Width="609">
     <Window.DataContext>
         <local:MainWindowViewModel/>
     </Window.DataContext>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="8*"/>
-            <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
-        <ListBox Grid.Column="0" ItemsSource="{Binding ViewableCreatures, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <ListBox Grid.Row="1" Grid.Column="0" ItemsSource="{Binding ViewableCreatures, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                  SelectedItem="{Binding SelectedNPC,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Description}"/>
+                        <TextBlock TextTrimming="CharacterEllipsis" Text="{Binding Description}"/>
                     </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <Grid Grid.Column="1">
+        <Grid Grid.Column="0">
             <StackPanel Orientation="Vertical">
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                    <Label>Filter</Label>
+                    <TextBox Text="{Binding Filter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" Width="250"/>
+                </StackPanel>
+
                 <Button Content="Copy Spawn Code"
                         Command="{Binding SpawnCodeCommand}"></Button>
             </StackPanel>

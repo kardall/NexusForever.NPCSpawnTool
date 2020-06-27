@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows;
 
 namespace NexusForever.NPCSpawnTool
 {
@@ -30,6 +31,28 @@ namespace NexusForever.NPCSpawnTool
 
         List<NPCSpawnModel> CreatureList;
 
+        string _Filter;
+        public string Filter
+        {
+            get => _Filter;
+            set
+            {
+                if (_Filter == value) return;
+                if (value == null) _Filter = string.Empty;
+                _Filter = value;
+
+                if(_Filter.Length < 3)
+                {
+                    ViewableCreatures = new ObservableCollection<NPCSpawnModel>(CreatureList.Where(x => !string.IsNullOrEmpty(x.Description)).OrderBy(x => x.Description));
+                } else
+                {
+                    ViewableCreatures = new ObservableCollection<NPCSpawnModel>(CreatureList.Where(x => x.Description.ToLower().Contains(Filter.ToLower()) && !string.IsNullOrEmpty(x.Description)).OrderBy(x => x.Description));
+                }
+                NotifyPropertyChanged(nameof(Filter));
+
+            }
+        }
+
         NPCSpawnModel _SelectedNPC;
         public NPCSpawnModel SelectedNPC
         {
@@ -47,7 +70,7 @@ namespace NexusForever.NPCSpawnTool
             get
             {
                 if (SelectedNPC == null) return string.Empty;
-                return $"!entity add {SelectedNPC.Id}";
+                return $"!entity add {SelectedNPC.Creature} {SelectedNPC.Type} {SelectedNPC.displayInfo} {SelectedNPC.OutfitInfo} {SelectedNPC.faction1} {SelectedNPC.faction2} {SelectedNPC.activePropId}";
             }
         }
         ObservableCollection<NPCSpawnModel> _ViewableCreatures;
@@ -78,18 +101,17 @@ namespace NexusForever.NPCSpawnTool
 
         void CopySpawnCode()
         {
-            if (string.IsNullOrEmpty(NPCCode)) return;
-            OpenClipboard(IntPtr.Zero);
-            var ptr = Marshal.StringToHGlobalUni(NPCCode);
-            SetClipboardData(13, ptr);
-            CloseClipboard();
-            Marshal.FreeHGlobal(ptr);
+            Clipboard.SetText(NPCCode);
         }
 
         void LoadDataFile()
         {
-            var json = File.ReadAllText("CreatureList.json");
+            var json = File.ReadAllText("NPCTemplates.json");
             CreatureList = JsonConvert.DeserializeObject<List<NPCSpawnModel>>(json);
+            foreach(var creature in CreatureList)
+            {
+                creature.Description = creature.Description.Trim();
+            }
 
         }
     }
